@@ -8,16 +8,16 @@ export default function NotFoundPage() {
   })
 
   return (
-    <section className="empty-state empty-state--page">
-      <p className="eyebrow">404</p>
-      <h1>Esta funcion no esta en cartelera.</h1>
-      <p>Regresa al home o revisa tus favoritos guardados.</p>
-      <div className="detail-actions">
-        <Link className="button-link" to="/">
+    <section className="empty-state empty-state--page container">
+      <p className="eyebrow">Error 404</p>
+      <h1>Esta función no está en cartelera.</h1>
+      <p>Vuelve al inicio o revisa las películas que guardaste en tu lista.</p>
+      <div className="empty-state__actions">
+        <Link className="btn btn--primary" to="/">
           Volver al inicio
         </Link>
-        <Link className="button-link button-link--ghost" to="/favoritos">
-          Ver favoritos
+        <Link className="btn btn--ghost" to="/favoritos">
+          Ver mi lista
         </Link>
       </div>
     </section>

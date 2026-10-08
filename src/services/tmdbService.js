@@ -2,7 +2,8 @@ import axios from 'axios'
 import { mockGenres, mockMovies } from '../data/mockTmdb.js'
 
 const API_BASE_URL = 'https://api.themoviedb.org/3'
-const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/original'
+const POSTER_BASE_URL = 'https://image.tmdb.org/t/p/w500'
+const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/w1280'
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY
 
 const client = axios.create({
@@ -14,7 +15,7 @@ const client = axios.create({
   },
 })
 
-function chunkMovies(items, page = 1, pageSize = 6) {
+function chunkMovies(items, page = 1, pageSize = 12) {
   const start = (page - 1) * pageSize
   const results = items.slice(start, start + pageSize)
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize))
@@ -30,8 +31,8 @@ function chunkMovies(items, page = 1, pageSize = 6) {
 function mapMovie(movie) {
   return {
     ...movie,
-    posterUrl: movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : '',
-    backdropUrl: movie.backdrop_path ? `${IMAGE_BASE_URL}${movie.backdrop_path}` : '',
+    posterUrl: movie.poster_path ? `${POSTER_BASE_URL}${movie.poster_path}` : '',
+    backdropUrl: movie.backdrop_path ? `${BACKDROP_BASE_URL}${movie.backdrop_path}` : '',
     genres: movie.genre_ids?.map((genreId) => mockGenres[genreId]).filter(Boolean) ?? movie.genres ?? [],
   }
 }
@@ -41,7 +42,7 @@ function mapMovieDetail(movie) {
     ...mapMovie(movie),
     runtime: movie.runtime ?? 128,
     status: movie.status ?? 'Released',
-    tagline: movie.tagline ?? 'Historias blockbuster para una experiencia premium.',
+    tagline: movie.tagline ?? 'Una historia para ver en pantalla grande.',
   }
 }
 
@@ -117,10 +118,10 @@ export async function getSimilarMovies(movieId) {
     return { ...data, results: data.results.map(mapMovie), usingFallback: false }
   } catch {
     const source = mockMovies.find((movie) => String(movie.id) === String(movieId))
-    const fallback = mockMovies
-      .filter((movie) => movie.id !== Number(movieId))
-      .filter((movie) => source?.genre_ids?.some((genreId) => movie.genre_ids.includes(genreId)))
-      .slice(0, 6)
+    const others = mockMovies.filter((movie) => movie.id !== Number(movieId))
+    const related = others.filter((movie) => source?.genre_ids?.some((genreId) => movie.genre_ids.includes(genreId)))
+    const rest = others.filter((movie) => !related.includes(movie))
+    const fallback = [...related, ...rest].slice(0, 8)
     return { page: 1, results: fallback.map(mapMovie), total_pages: 1, total_results: fallback.length, usingFallback: true }
   }
 }

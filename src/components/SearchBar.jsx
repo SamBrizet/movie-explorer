@@ -9,10 +9,15 @@ export default function SearchBar({ defaultValue = '', onSubmit }) {
   }
 
   return (
-    <form className="search-bar" onSubmit={handleSubmit}>
+    <form className="search-bar" onSubmit={handleSubmit} role="search">
       <FiSearch aria-hidden="true" />
-      <input name="query" type="search" defaultValue={defaultValue} placeholder="Buscar peliculas, sagas o directores" />
-      <button type="submit">Buscar</button>
+      <input
+        name="query"
+        type="search"
+        defaultValue={defaultValue}
+        placeholder="Buscar películas"
+        aria-label="Buscar películas"
+      />
     </form>
   )
 }

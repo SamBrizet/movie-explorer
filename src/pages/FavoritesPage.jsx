@@ -1,3 +1,4 @@
+import { FiHeart } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
 import MovieGrid from '../components/MovieGrid.jsx'
 import SectionHeader from '../components/SectionHeader.jsx'
@@ -8,24 +9,27 @@ export default function FavoritesPage() {
   const { favorites } = useMovieApp()
 
   useDocumentMeta({
-    title: 'Favoritos | Movie Explorer',
-    description: 'Tu biblioteca local de peliculas favoritas guardadas con LocalStorage.',
+    title: 'Mi lista | Movie Explorer',
+    description: 'Tu biblioteca de películas favoritas, guardada en este dispositivo.',
   })
 
   return (
-    <div className="page-stack page-stack--tight">
-      <section className="content-section content-section--tight">
+    <div className="page page--inner">
+      <section className="section container">
         <SectionHeader
-          eyebrow="Favoritos"
-          title="Tu watchlist personal"
-          copy="Guardada localmente para revisar peliculas sin perder el contexto de exploracion."
+          eyebrow="Mi lista"
+          title={favorites.length > 0 ? `${favorites.length} ${favorites.length === 1 ? 'película guardada' : 'películas guardadas'}` : 'Tu lista está vacía'}
+          copy="Se guarda en este dispositivo para que no pierdas lo que quieres ver."
         />
         {favorites.length === 0 ? (
           <article className="empty-state">
-            <h2>Aun no agregaste peliculas.</h2>
-            <p>Explora el home o busca un titulo para comenzar tu lista.</p>
-            <Link className="button-link" to="/">
-              Ir al inicio
+            <span className="empty-state__icon" aria-hidden="true">
+              <FiHeart />
+            </span>
+            <h2>Aún no agregaste películas.</h2>
+            <p>Toca el corazón de cualquier póster para guardarla aquí.</p>
+            <Link className="btn btn--primary" to="/">
+              Explorar películas
             </Link>
           </article>
         ) : (

@@ -3,48 +3,61 @@ import { FiHeart, FiStar } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
 import { useMovieApp } from '../context/useMovieApp.js'
 
-export default function MovieCard({ movie }) {
+export default function MovieCard({ movie, rank }) {
   const { favoriteIds, toggleFavorite } = useMovieApp()
   const isFavorite = favoriteIds.has(movie.id)
+  const year = movie.release_date?.slice(0, 4)
+  const genre = movie.genres?.[0]
 
   return (
     <motion.article
-      className="movie-card"
-      initial={{ opacity: 0, y: 20 }}
+      className={`movie-card${rank ? ' movie-card--ranked' : ''}`}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
+      viewport={{ once: true, amount: 0.15 }}
       transition={{ duration: 0.4 }}
-      whileHover={{ y: -5, scale: 1.01 }}
     >
-      <button
-        type="button"
-        className={`movie-card__favorite${isFavorite ? ' is-active' : ''}`}
-        onClick={() => toggleFavorite(movie)}
-        aria-label={isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
-      >
-        <FiHeart />
-      </button>
+      {rank ? (
+        <span className="movie-card__rank" aria-hidden="true">
+          {rank}
+        </span>
+      ) : null}
 
-      <Link className="movie-card__poster" to={`/pelicula/${movie.id}`}>
-        <img src={movie.posterUrl} alt={movie.title} loading="lazy" />
-      </Link>
+      <div className="movie-card__frame">
+        <Link className="movie-card__poster" to={`/pelicula/${movie.id}`} aria-label={movie.title}>
+          {movie.posterUrl ? (
+            <img src={movie.posterUrl} alt={`Póster de ${movie.title}`} loading="lazy" />
+          ) : (
+            <span className="movie-card__noposter">{movie.title}</span>
+          )}
+          <span className="movie-card__overlay" aria-hidden="true">
+            <span>Ver detalles</span>
+          </span>
+        </Link>
 
-      <div className="movie-card__body">
-        <div className="movie-card__rating">
-          <span>{movie.release_date?.slice(0, 4) ?? 'Estreno'}</span>
-          <strong>
-            <FiStar /> {movie.vote_average?.toFixed(1)}
-          </strong>
-        </div>
+        <span className="movie-card__rating">
+          <FiStar aria-hidden="true" /> {movie.vote_average?.toFixed(1)}
+        </span>
+
+        <button
+          type="button"
+          className={`movie-card__favorite${isFavorite ? ' is-active' : ''}`}
+          onClick={() => toggleFavorite(movie)}
+          aria-pressed={isFavorite}
+          aria-label={isFavorite ? `Quitar ${movie.title} de mi lista` : `Agregar ${movie.title} a mi lista`}
+        >
+          <FiHeart aria-hidden="true" />
+        </button>
+      </div>
+
+      <div className="movie-card__info">
         <Link to={`/pelicula/${movie.id}`}>
           <h3>{movie.title}</h3>
         </Link>
-        <p>{movie.overview}</p>
-        <div className="chip-row">
-          {movie.genres?.slice(0, 3).map((genre) => (
-            <span key={genre}>{genre}</span>
-          ))}
-        </div>
+        <p>
+          {year}
+          {genre ? ` · ${genre}` : ''}
+        </p>
       </div>
     </motion.article>
   )

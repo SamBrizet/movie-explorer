@@ -152,15 +152,15 @@ export const mockMovies = [
 ]
 
 export const mockGenres = {
-  12: 'Adventure',
-  14: 'Fantasy',
-  16: 'Animation',
+  12: 'Aventura',
+  14: 'Fantasía',
+  16: 'Animación',
   18: 'Drama',
-  28: 'Action',
-  35: 'Comedy',
-  36: 'History',
-  53: 'Thriller',
-  80: 'Crime',
-  878: 'Sci-Fi',
-  10751: 'Family',
+  28: 'Acción',
+  35: 'Comedia',
+  36: 'Historia',
+  53: 'Suspenso',
+  80: 'Crimen',
+  878: 'Ciencia ficción',
+  10751: 'Familia',
 }

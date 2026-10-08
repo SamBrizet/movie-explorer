@@ -52,11 +52,11 @@ export function MovieProvider({ children }) {
         const exists = current.some((item) => item.id === movie.id)
 
         if (exists) {
-          showToast('Pelicula eliminada de favoritos')
+          showToast('Quitada de tu lista')
           return current.filter((item) => item.id !== movie.id)
         }
 
-        showToast('Pelicula agregada a favoritos')
+        showToast('Agregada a tu lista')
         return [movie, ...current]
       })
     },

@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import FallbackNotice from '../components/FallbackNotice.jsx'
+import { Link, useSearchParams } from 'react-router-dom'
 import Loader from '../components/Loader.jsx'
 import MovieGrid from '../components/MovieGrid.jsx'
 import MovieSkeletonGrid from '../components/MovieSkeletonGrid.jsx'
@@ -16,7 +15,7 @@ export default function SearchPage() {
     (page) => (query && query !== 'popular' ? searchMovies(query, page) : getPopularMovies(page)),
     [query],
   )
-  const { anchorRef, error, hasMore, items, loading, usingFallback } = useInfiniteMovies(fetcher, query)
+  const { anchorRef, error, hasMore, items, loading } = useInfiniteMovies(fetcher, query)
 
   useDocumentMeta({
     title: query ? `Buscar: ${query} | Movie Explorer` : 'Peliculas populares | Movie Explorer',
@@ -24,23 +23,25 @@ export default function SearchPage() {
   })
 
   return (
-    <div className="page-stack page-stack--tight">
-      <section className="content-section content-section--tight">
+    <div className="page page--inner">
+      <section className="section container">
         <SectionHeader
-          eyebrow="Busqueda"
-          title={query && query !== 'popular' ? `Resultados para "${query}"` : 'Catalogo popular con scroll infinito'}
-          copy="La lista sigue cargando automaticamente a medida que avanzas en la pantalla."
+          eyebrow={query && query !== 'popular' ? 'Búsqueda' : 'Catálogo'}
+          title={query && query !== 'popular' ? `Resultados para "${query}"` : 'Películas populares'}
+          copy="Sigue bajando para descubrir más títulos."
         />
-        {usingFallback ? <FallbackNotice /> : null}
         {items.length > 0 ? <MovieGrid movies={items} /> : null}
         {loading ? (
-          items.length > 0 ? <Loader label="Cargando mas peliculas" /> : <MovieSkeletonGrid count={8} />
+          items.length > 0 ? <Loader label="Cargando más películas" /> : <MovieSkeletonGrid count={12} />
         ) : null}
         {error ? <p className="status-card">{error}</p> : null}
         {!loading && items.length === 0 ? (
           <article className="empty-state">
             <h2>No encontramos resultados.</h2>
-            <p>Prueba con otro titulo o revisa la seccion popular.</p>
+            <p>Prueba con otro título o explora las películas populares.</p>
+            <Link className="btn btn--primary" to="/buscar?q=popular">
+              Ver populares
+            </Link>
           </article>
         ) : null}
         {hasMore ? <div ref={anchorRef} className="infinite-anchor" aria-hidden="true"></div> : null}

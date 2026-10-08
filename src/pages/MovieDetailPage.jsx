@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
-import { FiClock, FiHeart, FiStar } from 'react-icons/fi'
+import { FiArrowLeft, FiCheck, FiClock, FiPlus, FiStar } from 'react-icons/fi'
 import { Link, useParams } from 'react-router-dom'
-import FallbackNotice from '../components/FallbackNotice.jsx'
 import Loader from '../components/Loader.jsx'
-import MovieGrid from '../components/MovieGrid.jsx'
-import SectionHeader from '../components/SectionHeader.jsx'
+import MovieRow from '../components/MovieRow.jsx'
 import { useMovieApp } from '../context/useMovieApp.js'
 import { useDocumentMeta } from '../hooks/useDocumentMeta.js'
 import { getMovieDetail, getSimilarMovies } from '../services/tmdbService.js'
+
+function formatRuntime(minutes) {
+  if (!minutes) return null
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  return hours > 0 ? `${hours} h ${rest} min` : `${rest} min`
+}
 
 export default function MovieDetailPage() {
   const { movieId } = useParams()
@@ -15,7 +20,6 @@ export default function MovieDetailPage() {
   const [movie, setMovie] = useState(null)
   const [similar, setSimilar] = useState([])
   const [loading, setLoading] = useState(true)
-  const [usingFallback, setUsingFallback] = useState(false)
 
   useDocumentMeta({
     title: movie ? `${movie.title} | Movie Explorer` : 'Detalle | Movie Explorer',
@@ -33,7 +37,6 @@ export default function MovieDetailPage() {
 
       setMovie(detail)
       setSimilar(related.results)
-      setUsingFallback(Boolean(detail.usingFallback || related.usingFallback))
       setLoading(false)
     }
 
@@ -53,49 +56,77 @@ export default function MovieDetailPage() {
 
   if (!movie) {
     return (
-      <section className="empty-state empty-state--page">
-        <h1>No encontramos esta pelicula.</h1>
-        <Link className="button-link" to="/">
+      <section className="empty-state empty-state--page container">
+        <h1>No encontramos esta película.</h1>
+        <Link className="btn btn--primary" to="/">
           Volver al inicio
         </Link>
       </section>
     )
   }
 
+  const isFavorite = favoriteIds.has(movie.id)
+  const year = movie.release_date?.slice(0, 4)
+
   return (
-    <div className="page-stack page-stack--tight">
-      <section className="detail-hero" style={{ backgroundImage: `linear-gradient(180deg, rgba(5,8,15,.4), rgba(5,8,15,.96)), url(${movie.backdropUrl})` }}>
-        <div className="detail-hero__content">
-          <p className="eyebrow">Detalle</p>
-          <h1>{movie.title}</h1>
-          <p>{movie.overview}</p>
+    <div className="page">
+      <section className="detail">
+        <div className="detail__backdrop" aria-hidden="true">
+          {movie.backdropUrl ? <img src={movie.backdropUrl} alt="" fetchPriority="high" /> : null}
+        </div>
 
-          <div className="detail-meta">
-            <span><FiStar /> {movie.vote_average?.toFixed(1)}</span>
-            <span><FiClock /> {movie.runtime} min</span>
-            <span>{movie.release_date?.slice(0, 4)}</span>
-          </div>
+        <div className="detail__inner container">
+          <Link className="back-link" to="/">
+            <FiArrowLeft aria-hidden="true" /> Volver
+          </Link>
 
-          <div className="chip-row">
-            {movie.genres?.map((genre) => (
-              <span key={genre}>{genre}</span>
-            ))}
-          </div>
+          <div className="detail__layout">
+            <div className="detail__poster">
+              {movie.posterUrl ? <img src={movie.posterUrl} alt={`Póster de ${movie.title}`} /> : null}
+            </div>
 
-          <div className="detail-actions">
-            <button type="button" className="button-link" onClick={() => toggleFavorite(movie)}>
-              <FiHeart /> {favoriteIds.has(movie.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
-            </button>
+            <div className="detail__content">
+              <h1>{movie.title}</h1>
+              {movie.tagline ? <p className="detail__tagline">{movie.tagline}</p> : null}
+
+              <div className="detail__meta">
+                <span className="rating">
+                  <FiStar aria-hidden="true" /> {movie.vote_average?.toFixed(1)}
+                </span>
+                {year ? <span>{year}</span> : null}
+                {formatRuntime(movie.runtime) ? (
+                  <span>
+                    <FiClock aria-hidden="true" /> {formatRuntime(movie.runtime)}
+                  </span>
+                ) : null}
+              </div>
+
+              <div className="chip-row">
+                {movie.genres?.map((genre) => (
+                  <span key={genre}>{genre}</span>
+                ))}
+              </div>
+
+              <div className="detail__synopsis">
+                <h2>Sinopsis</h2>
+                <p>{movie.overview}</p>
+              </div>
+
+              <div className="detail__actions">
+                <button type="button" className="btn btn--primary" onClick={() => toggleFavorite(movie)} aria-pressed={isFavorite}>
+                  {isFavorite ? <FiCheck aria-hidden="true" /> : <FiPlus aria-hidden="true" />}
+                  {isFavorite ? 'En mi lista' : 'Agregar a mi lista'}
+                </button>
+                <Link className="btn btn--ghost" to="/favoritos">
+                  Ver mi lista
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {usingFallback ? <FallbackNotice /> : null}
-
-      <section className="content-section content-section--tight">
-        <SectionHeader eyebrow="Similares" title="Mas titulos para continuar la sesion" copy="Recomendaciones relacionadas para mantener el tono visual y narrativo." />
-        <MovieGrid movies={similar} />
-      </section>
+      {similar.length > 0 ? <MovieRow eyebrow="Similares" title="También te puede gustar" movies={similar} /> : null}
     </div>
   )
 }
